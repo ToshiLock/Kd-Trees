@@ -1,5 +1,6 @@
 
 .metadata/
+.recommenders/
 Kdtrees/.classpath
 Kdtrees/.project
 Kdtrees/.settings/org.eclipse.jdt.core.prefs
