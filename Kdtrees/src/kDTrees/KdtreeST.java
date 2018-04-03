@@ -8,6 +8,8 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class KdtreeST<T> {
 	
+	private Node Root;
+	
 	// construct an empty symbol table of points
 	public KdtreeST()
 	{
@@ -17,7 +19,7 @@ public class KdtreeST<T> {
 	// is the symbol table empty? 
 	public boolean isEmpty()
 	{
-		
+		return Root == null;
 	}
 
 	// number of points 
@@ -33,8 +35,47 @@ public class KdtreeST<T> {
 			throw new java.lang.NullPointerException("the point must not be null");
 		if (val == null)
 			throw new java.lang.NullPointerException("the value must not be null");
+		
+		if(Root == null)
+		{
+			Root = new Node<T>(p,val);
+			return;
+		}
+		
+		put(Root, p, val);
+		
 	}
-
+	//travels down the tree till it finds where to put the new node
+	private void put(Node<T> current, Point2D p, T val)
+	{
+		double comp = compare(current, p, current.horizontal);
+		
+		if(comp > 0)
+		{			
+			if(current.right != null)
+				put(current.right, p, val);
+			else
+				current.right = new Node<T>(p,val,!current.horizontal);
+			return;
+		}
+		
+		if (current.left != null)
+			put(current.left,p, val);
+		else
+			current.left = new Node<T>(p,val,!current.horizontal);	
+	}
+	
+	//method that uses whether we are horizintal or vertical to decide what to do with the node.
+	private double compare(Node<T> current, Point2D that, boolean Horizontal)
+	{
+		if(Horizontal)
+		{
+			return current.point.x() - that.x();
+		}
+		
+		return current.point.x() - that.y();
+	}
+	
 	// value associated with point p 
 	public T get(Point2D p)
 	{
@@ -71,6 +112,33 @@ public class KdtreeST<T> {
 		
 		if(isEmpty())
 			return null;
+	}
+	
+	private class Node<U>
+	{
+		private static final boolean HORIZONTAL = true;
+	    private static final boolean VERTICAL = false;
+		
+	    Point2D point;
+	    U value;
+	    
+		Node right = null;
+		Node left = null;
+		boolean horizontal = HORIZONTAL;
+		
+		private Node(Point2D p, U val)
+		{
+			this.point = p;
+			this.value = val;
+		}
+		
+		private Node(Point2D p, U val, boolean horizontal)
+		{
+			this.point = p;
+			this.value = val;
+			this.horizontal = horizontal;
+		}
+		
 	}
 	  
 	public static void main(String[] args)    

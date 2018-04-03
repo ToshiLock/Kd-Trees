@@ -9,7 +9,6 @@ import edu.princeton.cs.algs4.StdOut;
 public class PointST<T> {
 
 	private RedBlackBST<Point2D, T> symTable;
-	
 
 	// construct an empty symbol table of points
 	public PointST()
@@ -81,7 +80,6 @@ public class PointST<T> {
 		
 		Queue<Point2D> points = new Queue<Point2D>();
 		int size =  symTable.size();
-		
 		
 		for(int i = 0; i < size ; i++)
 		{
