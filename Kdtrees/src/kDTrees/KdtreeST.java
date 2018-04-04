@@ -8,24 +8,24 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class KdtreeST<T> {
 	
-	private Node Root;
+	private Node root;
 	
 	// construct an empty symbol table of points
-	public KdtreeST()
-	{
-		
-	}
+	public KdtreeST(){}
 
 	// is the symbol table empty? 
 	public boolean isEmpty()
 	{
-		return Root == null;
+		return root == null;
 	}
 
 	// number of points 
 	public int size()
 	{
+		if(isEmpty())
+			return 0;
 		
+		return root.size;
 	}
 
 	// associate the value val with point p
@@ -36,44 +36,57 @@ public class KdtreeST<T> {
 		if (val == null)
 			throw new java.lang.NullPointerException("the value must not be null");
 		
-		if(Root == null)
+		if(root == null)
 		{
-			Root = new Node<T>(p,val);
+			root = new Node(p,val);
 			return;
 		}
 		
-		put(Root, p, val);
+		put(root, p, val);
 		
 	}
 	//travels down the tree till it finds where to put the new node
-	private void put(Node<T> current, Point2D p, T val)
+	private void put(Node current, Point2D p, T val)
 	{
-		double comp = compare(current, p, current.horizontal);
-		
+		double comp = compare(current, p);
 		if(comp > 0)
 		{			
+			//can't use null base case like in video because we need the parent
+			//to determin the horizontal or vertical; 
 			if(current.right != null)
+			{
 				put(current.right, p, val);
+				resize(current);
+			}
 			else
-				current.right = new Node<T>(p,val,!current.horizontal);
+			{
+				current.right = new Node(p,val,!current.horizontal);
+				resize(current);
+			}	
 			return;
 		}
 		
 		if (current.left != null)
+		{
 			put(current.left,p, val);
+			resize(current);
+		}
 		else
-			current.left = new Node<T>(p,val,!current.horizontal);	
+		{
+			current.left = new Node(p,val,!current.horizontal);	
+			resize(current);
+		}
 	}
 	
 	//method that uses whether we are horizintal or vertical to decide what to do with the node.
-	private double compare(Node<T> current, Point2D that, boolean Horizontal)
+	private double compare(Node current, Point2D that)
 	{
-		if(Horizontal)
+		if(current.horizontal)
 		{
-			return current.point.x() - that.x();
+			return current.point.y() - that.y();
 		}
 		
-		return current.point.x() - that.y();
+		return current.point.x() - that.x();
 	}
 	
 	// value associated with point p 
@@ -81,6 +94,23 @@ public class KdtreeST<T> {
 	{
 		if (p == null)
 			throw new java.lang.NullPointerException("the point must not be null");
+		
+		return get(p, root);
+	}
+	
+	private T get(Point2D p , Node n)
+	{
+		//base cases
+		if (n == null)
+			return null;
+		if (n.point.equals(p))
+			return n.value;
+		
+		double cmp = compare(n,p);
+		if(cmp < 0)
+			return get(p,n.left);
+		else
+			return get(p,n.right);
 	}
 
 	// does the symbol table contain point p? 
@@ -88,6 +118,8 @@ public class KdtreeST<T> {
 	{
 		if (p == null)
 			throw new java.lang.NullPointerException("the point must not be null");
+		
+		return get(p, root) != null;
 	}
 	  
 
@@ -95,13 +127,17 @@ public class KdtreeST<T> {
 	public Iterable<Point2D> points()
 	{
 		Queue<Point2D> points = new Queue<Point2D>(); 
+		
+		return null;
 	}
 
 	// all points that are inside the rectangle 
 	public Iterable<Point2D> range(RectHV rect)
 	{
 		if(rect == null)
-			throw new java.lang.NullPointerException("the rectangle must not be null");\
+			throw new java.lang.NullPointerException("the rectangle must not be null");
+		
+		return null;
 	}
 	 
 	// a nearest neighbor to point p; null if the symbol table is empty 
@@ -112,38 +148,61 @@ public class KdtreeST<T> {
 		
 		if(isEmpty())
 			return null;
+		
+		return null;
 	}
 	
-	private class Node<U>
+	private void resize(Node n)
+	{
+		n.size = n.left.size+n.right.size +1;
+	}
+	
+	private class Node
 	{
 		private static final boolean HORIZONTAL = true;
 	    private static final boolean VERTICAL = false;
 		
 	    Point2D point;
-	    U value;
-	    
-		Node right = null;
-		Node left = null;
-		boolean horizontal = HORIZONTAL;
+	    T value;
+		Node right;
+		Node left;
+		boolean horizontal;
+		int size;
 		
-		private Node(Point2D p, U val)
+		private Node(Point2D p, T val)
 		{
 			this.point = p;
 			this.value = val;
+			this.right = null;
+			this.left = null;
+			this.horizontal = HORIZONTAL;
+			this.size = 1;
 		}
 		
-		private Node(Point2D p, U val, boolean horizontal)
+		private Node(Point2D p, T val, boolean horizontal)
 		{
 			this.point = p;
 			this.value = val;
 			this.horizontal = horizontal;
+			this.right = null;
+			this.left = null;
+			this.size = 1;
 		}
 		
+		@Override
+		public String toString(){
+			return point.toString() + " " + value.toString();
+		}
 	}
 	  
 	public static void main(String[] args)    
 	{
+		KdtreeST<Integer> test = new KdtreeST<Integer>();
 		
+		test.put(new Point2D(0, 0), 10);
+		test.put(new Point2D(1, 0), 20);
+		test.put(new Point2D(0, 2), 30);
+		test.put(new Point2D(3, 0), 40);
 	}
 
 
