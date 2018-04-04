@@ -106,6 +106,7 @@ public class KdtreeST<T> {
 		if (n.point.equals(p))
 			return n.value;
 		
+		//desides which path to go down
 		double cmp = compare(n,p);
 		if(cmp < 0)
 			return get(p,n.left);
@@ -154,7 +155,10 @@ public class KdtreeST<T> {
 	
 	private void resize(Node n)
 	{
-		n.size = n.left.size+n.right.size +1;
+		int r = (n.right != null)? n.right.size : 0; 
+		int l = (n.left != null)? n.left.size: 0;
+		
+		n.size = r + l + 1;
 	}
 	
 	private class Node
@@ -203,6 +207,9 @@ public class KdtreeST<T> {
 		test.put(new Point2D(1, 0), 20);
 		test.put(new Point2D(0, 2), 30);
 		test.put(new Point2D(3, 0), 40);
+		test.put(new Point2D(4, 0), 40);
+		
+		StdOut.println(test.size());
 	}
 
 
