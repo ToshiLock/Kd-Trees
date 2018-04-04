@@ -7,7 +7,9 @@ import edu.princeton.cs.algs4.RedBlackBST;
 import edu.princeton.cs.algs4.StdOut;
 
 public class KdtreeST<T> {
-	
+
+	private static final boolean HORIZONTAL = true;
+    private static final boolean VERTICAL = false;
 	private Node root;
 	
 	// construct an empty symbol table of points
@@ -36,95 +38,43 @@ public class KdtreeST<T> {
 		if (val == null)
 			throw new java.lang.NullPointerException("the value must not be null");
 		
-		if(root == null)
-		{
-			root = new Node(p,val);
-			return;
-		}
-		
-		put(root, p, val);
+		root = put(root, p, val, VERTICAL, 0); //VERTIAL and 0 are arbitrary 
+		resize(root);
 		
 	}
 	//travels down the tree till it finds where to put the new node
-	private void put(Node current, Point2D p, T val)
+	private Node put(Node current, Point2D p, T val, boolean horizontal, double comp) 
 	{
-		//if the new point is already in the tree
-		if(current.point.equals(p))
-		{
-			current.value = val;
-		}
-		
-		double comp = compare(current, p);
-		if(comp >= 0)
-		{			
-			//can't use null base case like in video because we need the parent
-			//to determin the horizontal or vertical; 
-			if(current.right != null)
-			{
-				put(current.right, p, val);
-				resize(current);
-			}
-			else
-			{
-				current.right = new Node(p,val,!current.horizontal);
-				resize(current);
-			}	
-			return;
-		}
-		
-		if (current.left != null)
-		{
-			put(current.left,p, val);
-			resize(current);
-		}
-		else
-		{
-			current.left = new Node(p,val,!current.horizontal);	
-			resize(current);
-		}
-	}
-	
-	/*
-	 * possible second idea for put
-	 * cleaner and closer to the video
-	 * 
-	 * private Node put(Node current, Point2D p, T val, boolean horizontal) 
-	 * {
-	 * 		if (current == null)
-	 * 		{
-	 * 			return new Node(p, val, horizontal);
-	 * 		}
-	 * 
-	 * 		if(current.point.equals(p))
-	 * 		{
-	 * 			current.value = val;
-	 * 		}
-	 * 
-	 * 		double comp = compare(current, p);
-	 * 		if (comp >= 0)
-	 * 		{
-	 * 			current.right = put(current.right, p, val, !horizontal);
-	 * 			return current;
-	 * 		}
-	 * 		else
-	 * 		{
-	 * 			current.left = put(current.left, p, val, !horizontal);
-	 * 			return current;
-	 * 		}
-	 * 		
-	 * 
-	 * }
-	 */
+		if (current == null)
+	  		return new Node(p, val, horizontal);
+
+  		if(current.point.equals(p))
+  			current.value = val;
+	  	  	
+  		comp = compare(current, p);
+	  	if (comp >= 0)
+	  	{
+	  		current.right = put(current.right, p, val, !horizontal, comp);
+	  		resize(current);
+	  		return current;
+	  	}
+	  	else
+	  	{
+	  		current.left = put(current.left, p, val, !horizontal, comp);
+	  		resize(current);
+	  		return current;
+	  	}	  
+	  }
 	
 	//method that uses whether we are horizintal or vertical to decide what to do with the node.
 	private double compare(Node current, Point2D that)
 	{
-		if(current.horizontal)
+		if(current.orientation == HORIZONTAL)
 		{
-			return current.point.y() - that.y();
+			return that.y() - current.point.y();
 		}
 		
-		return current.point.x() - that.x();
+		return that.x()- current.point.x();
 	}
 	
 	// value associated with point p 
@@ -173,8 +123,7 @@ public class KdtreeST<T> {
 		
 		while(!temp.isEmpty())
 		{
-			current = temp.dequeue();
-			
+			current = temp.dequeue();		
 			if(current.left != null)
 				temp.enqueue(current.left);
 			
@@ -212,37 +161,23 @@ public class KdtreeST<T> {
 	{
 		int r = (n.right != null)? n.right.size : 0; 
 		int l = (n.left != null)? n.left.size: 0;
-		
 		n.size = r + l + 1;
 	}
 	
 	private class Node
-	{
-		private static final boolean HORIZONTAL = true;
-	    private static final boolean VERTICAL = false;
-		
+	{		
 	    Point2D point;
 	    T value;
 		Node right;
 		Node left;
-		boolean horizontal;
+		boolean orientation;
 		int size;
-		
-		private Node(Point2D p, T val)
-		{
-			this.point = p;
-			this.value = val;
-			this.right = null;
-			this.left = null;
-			this.horizontal = HORIZONTAL;
-			this.size = 1;
-		}
 		
 		private Node(Point2D p, T val, boolean horizontal)
 		{
 			this.point = p;
 			this.value = val;
-			this.horizontal = horizontal;
+			this.orientation = horizontal;
 			this.right = null;
 			this.left = null;
 			this.size = 1;
@@ -261,7 +196,7 @@ public class KdtreeST<T> {
 		test.put(new Point2D(3, 0), 10);
 		test.put(new Point2D(1, 0), 20);
 		test.put(new Point2D(0, 2), 30);
-		test.put(new Point2D(0, 0), 40);
+		test.put(new Point2D(0, 3), 40);
 		test.put(new Point2D(4, 3), 40);
 		
 		StdOut.println(test.size());
@@ -270,7 +205,6 @@ public class KdtreeST<T> {
 		{
 			StdOut.println(p);
 		}
+		
 	}
-
-
 }
