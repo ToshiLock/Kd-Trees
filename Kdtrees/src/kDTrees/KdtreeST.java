@@ -48,8 +48,14 @@ public class KdtreeST<T> {
 	//travels down the tree till it finds where to put the new node
 	private void put(Node current, Point2D p, T val)
 	{
+		//if the new point is already in the tree
+		if(current.point.equals(p))
+		{
+			current.value = val;
+		}
+		
 		double comp = compare(current, p);
-		if(comp > 0)
+		if(comp >= 0)
 		{			
 			//can't use null base case like in video because we need the parent
 			//to determin the horizontal or vertical; 
@@ -77,6 +83,38 @@ public class KdtreeST<T> {
 			resize(current);
 		}
 	}
+	
+	/*
+	 * possible second idea for put
+	 * cleaner and closer to the video
+	 * 
+	 * private Node put(Node current, Point2D p, T val, boolean horizontal) 
+	 * {
+	 * 		if (current == null)
+	 * 		{
+	 * 			return new Node(p, val, horizontal);
+	 * 		}
+	 * 
+	 * 		if(current.point.equals(p))
+	 * 		{
+	 * 			current.value = val;
+	 * 		}
+	 * 
+	 * 		double comp = compare(current, p);
+	 * 		if (comp >= 0)
+	 * 		{
+	 * 			current.right = put(current.right, p, val, !horizontal);
+	 * 			return current;
+	 * 		}
+	 * 		else
+	 * 		{
+	 * 			current.left = put(current.left, p, val, !horizontal);
+	 * 			return current;
+	 * 		}
+	 * 		
+	 * 
+	 * }
+	 */
 	
 	//method that uses whether we are horizintal or vertical to decide what to do with the node.
 	private double compare(Node current, Point2D that)
@@ -128,8 +166,25 @@ public class KdtreeST<T> {
 	public Iterable<Point2D> points()
 	{
 		Queue<Point2D> points = new Queue<Point2D>(); 
+		Queue<Node> temp = new Queue<Node>();
+		Node current;
 		
-		return null;
+		temp.enqueue(root);
+		
+		while(!temp.isEmpty())
+		{
+			current = temp.dequeue();
+			
+			if(current.left != null)
+				temp.enqueue(current.left);
+			
+			if(current.right != null)
+				temp.enqueue(current.right);
+			
+			points.enqueue(current.point);
+		}
+		
+		return points;
 	}
 
 	// all points that are inside the rectangle 
@@ -203,13 +258,18 @@ public class KdtreeST<T> {
 	{
 		KdtreeST<Integer> test = new KdtreeST<Integer>();
 		
-		test.put(new Point2D(0, 0), 10);
+		test.put(new Point2D(3, 0), 10);
 		test.put(new Point2D(1, 0), 20);
 		test.put(new Point2D(0, 2), 30);
-		test.put(new Point2D(3, 0), 40);
-		test.put(new Point2D(4, 0), 40);
+		test.put(new Point2D(0, 0), 40);
+		test.put(new Point2D(4, 3), 40);
 		
 		StdOut.println(test.size());
+		
+		for(Point2D p : test.points())
+		{
+			StdOut.println(p);
+		}
 	}
 
 
