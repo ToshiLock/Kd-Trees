@@ -66,17 +66,6 @@ public class KdtreeST<T> {
 	  	}	  
 	  }
 	
-	//method that uses whether we are horizintal or vertical to decide what to do with the node.
-	private double compare(Node current, Point2D that)
-	{
-		if(current.orientation == HORIZONTAL)
-		{
-			return that.y() - current.point.y();
-		}
-		
-		return that.x()- current.point.x();
-	}
-	
 	// value associated with point p 
 	public T get(Point2D p)
 	{
@@ -142,8 +131,49 @@ public class KdtreeST<T> {
 		if(rect == null)
 			throw new java.lang.NullPointerException("the rectangle must not be null");
 		
-		return null;
+		Queue<Point2D> points = new Queue<Point2D>();
+		
+		range(rect, points, root);
+		
+		return points;
 	}
+	
+	private Iterable<Point2D> range(RectHV rect, Queue<Point2D> q, Node current)
+	{
+		//base case
+		if(current == null)
+		{
+			return q;
+		}
+		
+		//add point
+		if(rect.contains(current.point))
+			q.enqueue(current.point);
+		
+		//decide node orientaion 
+		if(current.orientation == VERTICAL)
+		{
+			//left
+			if (rect.xmin() < current.point.x())
+				range(rect,q,current.left);
+			
+			//right
+			if (rect.xmax() >= current.point.x())
+				range(rect,q,current.right);
+		}
+		else // if horizontal
+		{
+			//down
+			if(rect.ymin() < current.point.y())
+				range(rect,q,current.left);
+			
+			//up
+			if(rect.ymax() >= current.point.y())
+				range(rect,q,current.right);
+		}
+		return q;
+	}
+	
 	 
 	// a nearest neighbor to point p; null if the symbol table is empty 
 	public Point2D nearest(Point2D p)
@@ -154,7 +184,42 @@ public class KdtreeST<T> {
 		if(isEmpty())
 			return null;
 		
-		return null;
+		//create and pass to subsiquent calls so no recursive creation of variables
+		return nearest(p, root, new Point2D(0,0), Integer.MAX_VALUE, 0);
+	}
+	
+	private Point2D nearest(Point2D p, Node current, Point2D close, double distance, double cmp)
+	{
+		//base case
+		if(current == null)
+			return close;
+		
+		//add closer point
+		if(current.point.distanceTo(p) < distance)
+		{
+			close = current.point;
+			distance = current.point.distanceTo(p);
+		}
+		
+		//prunning step neeeded 
+		//read assighment and work out--------------------------------------------------------------------
+		//if(current.point.distanceTo(p) < )
+		
+		cmp = compare(current, p);
+		
+		//if given point is closer to right node go right first
+		if(cmp >= 0)
+		{
+			close = nearest(p,current.right, close,distance,cmp);
+			close = nearest(p,current.left, close,distance,cmp);
+		}
+		else // go left first
+		{
+			close = nearest(p,current.left, close,distance,cmp);
+			close = nearest(p,current.right, close,distance,cmp);
+		}
+		
+		return close;
 	}
 	
 	private void resize(Node n)
@@ -162,6 +227,17 @@ public class KdtreeST<T> {
 		int r = (n.right != null)? n.right.size : 0; 
 		int l = (n.left != null)? n.left.size: 0;
 		n.size = r + l + 1;
+	}
+	
+	//method that uses whether we are horizintal or vertical to decide what to do with the node.
+	private double compare(Node current, Point2D that)
+	{
+		if(current.orientation == HORIZONTAL)
+		{
+			return that.y() - current.point.y();
+		}
+		
+		return that.x()- current.point.x();
 	}
 	
 	private class Node
@@ -173,11 +249,11 @@ public class KdtreeST<T> {
 		boolean orientation;
 		int size;
 		
-		private Node(Point2D p, T val, boolean horizontal)
+		private Node(Point2D p, T val, boolean orientation)
 		{
 			this.point = p;
 			this.value = val;
-			this.orientation = horizontal;
+			this.orientation = orientation;
 			this.right = null;
 			this.left = null;
 			this.size = 1;
@@ -196,15 +272,27 @@ public class KdtreeST<T> {
 		test.put(new Point2D(3, 0), 10);
 		test.put(new Point2D(1, 0), 20);
 		test.put(new Point2D(0, 2), 30);
-		test.put(new Point2D(0, 3), 40);
+		test.put(new Point2D(.5, 1), 40);
 		test.put(new Point2D(4, 3), 40);
 		
+		StdOut.print("size() test");
 		StdOut.println(test.size());
 		
+		StdOut.println("\nIn order points() test");
 		for(Point2D p : test.points())
 		{
 			StdOut.println(p);
 		}
+
+		StdOut.println("\nrectangle test");
+		
+		for(Point2D p : test.range(new RectHV(0,1,0,3)))
+		{
+			StdOut.println(p);
+		}
+		
+		StdOut.println("\nnearest() test");
+		StdOut.println(test.nearest(new Point2D(0,3)));
 		
 	}
 }
