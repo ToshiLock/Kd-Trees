@@ -41,6 +41,11 @@ public class KdtreeST<T> {
 		root = put(root, p, val, VERTICAL, 0); //VERTIAL and 0 are arbitrary 
 		resize(root);
 		
+		return;
+		
+		//intereative solution?
+		
+		
 	}
 	//travels down the tree till it finds where to put the new node
 	private Node put(Node current, Point2D p, T val, boolean horizontal, double comp) 
