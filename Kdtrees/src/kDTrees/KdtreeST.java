@@ -38,15 +38,62 @@ public class KdtreeST<T> {
 		if (val == null)
 			throw new java.lang.NullPointerException("the value must not be null");
 		
-		root = put(root, p, val, VERTICAL, 0); //VERTIAL and 0 are arbitrary 
-		resize(root);
-		
-		return;
+		/*recursive solution
+		 *root = put(root, p, val, VERTICAL, 0); //VERTIAL and 0 are arbitrary 
+		 *resize(root); 
+		 */
 		
 		//intereative solution?
+		boolean axis = VERTICAL;
+		double comp = 0;
+		Node current = root;
+		
+		if (root ==null)
+		{
+			root = new Node(p,val,axis);
+		}
+		
+		else
+		{
+			while(true)
+			{
+				comp = compare(current,p);
+				if(comp < 0)
+				{
+					if(current.left != null)
+					{
+						current = current.left;
+						axis = !axis;
+					}
+					else
+					{
+						current.left = new Node(p,val, axis);
+						break;
+					}
+				}
+				else // if comp >=0
+				{
+					if(current.right != null)
+					{
+						current = current.left;
+						axis = !axis;
+					}
+					else
+					{
+						current.right = new Node(p,val, axis);
+						break;
+					}
+				}
+			}
+		}
 		
 		
 	}
+	
+	/*
+	 * recursive solution 
+	 *
+	
 	//travels down the tree till it finds where to put the new node
 	private Node put(Node current, Point2D p, T val, boolean horizontal, double comp) 
 	{
@@ -70,6 +117,7 @@ public class KdtreeST<T> {
 	  		return current;
 	  	}	  
 	  }
+	  */
 	
 	// value associated with point p 
 	public T get(Point2D p)
@@ -77,9 +125,28 @@ public class KdtreeST<T> {
 		if (p == null)
 			throw new java.lang.NullPointerException("the point must not be null");
 		
-		return get(p, root);
+		// recursive solution
+		//return get(p, root);
+		
+		double comp = 0;
+		Node current = root;
+		
+		while(current!= null && !current.point.equals(p))
+		{
+			comp = compare(current,p);
+			if(comp < 0)
+				current = current.left;
+			else
+				current = current.right;
+		}
+
+		if(current == null)
+			return null;
+		
+		return current.value;
 	}
 	
+	/* recursive soltion
 	private T get(Point2D p , Node n)
 	{
 		//base cases
@@ -104,6 +171,7 @@ public class KdtreeST<T> {
 		
 		return get(p, root) != null;
 	}
+	*/
 	  
 
 	// all points in the symbol table
@@ -282,6 +350,10 @@ public class KdtreeST<T> {
 		
 		StdOut.print("size() test");
 		StdOut.println(test.size());
+
+		StdOut.println("\nget() test");
+		StdOut.println(test.get(new Point2D(.5,1)));
+		
 		
 		StdOut.println("\nIn order points() test");
 		for(Point2D p : test.points())
@@ -291,7 +363,7 @@ public class KdtreeST<T> {
 
 		StdOut.println("\nrectangle test");
 		
-		for(Point2D p : test.range(new RectHV(0,1,0,3)))
+		for(Point2D p : test.range(new RectHV(1,0,3,0)))
 		{
 			StdOut.println(p);
 		}
