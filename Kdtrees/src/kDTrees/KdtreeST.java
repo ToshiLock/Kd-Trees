@@ -49,9 +49,7 @@ public class KdtreeST<T> {
 		Node current = root;
 		
 		if (root ==null)
-		{
 			root = new Node(p,val,axis);
-		}
 		
 		else
 		{
@@ -69,6 +67,7 @@ public class KdtreeST<T> {
 					else
 					{
 						current.left = new Node(p,val, axis);
+						resize(current);
 						break;
 					}
 				}
@@ -82,11 +81,13 @@ public class KdtreeST<T> {
 					else
 					{
 						current.right = new Node(p,val, axis);
+						resize(current);
 						break;
 					}
 				}
 			}
 		}		
+		resize(root);
 	}
 	
 	// value associated with point p 
@@ -284,7 +285,7 @@ public class KdtreeST<T> {
 		test.put(new Point2D(.5, 1), 40);
 		test.put(new Point2D(4, 3), 40);
 		
-		StdOut.print("size() test");
+		StdOut.println("size() test");
 		StdOut.println(test.size());
 
 		StdOut.println("\nget() test");
