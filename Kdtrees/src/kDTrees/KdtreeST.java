@@ -60,6 +60,7 @@ public class KdtreeST<T> {
 				comp = compare(current,p);
 				if(comp < 0)
 				{
+					// if there is a node go to it else create a new node there
 					if(current.left != null)
 					{
 						current = current.left;
@@ -75,7 +76,7 @@ public class KdtreeST<T> {
 				{
 					if(current.right != null)
 					{
-						current = current.left;
+						current = current.right;
 						axis = !axis;
 					}
 					else
@@ -85,39 +86,8 @@ public class KdtreeST<T> {
 					}
 				}
 			}
-		}
-		
-		
+		}		
 	}
-	
-	/*
-	 * recursive solution 
-	 *
-	
-	//travels down the tree till it finds where to put the new node
-	private Node put(Node current, Point2D p, T val, boolean horizontal, double comp) 
-	{
-		if (current == null)
-	  		return new Node(p, val, horizontal);
-
-  		if(current.point.equals(p))
-  			current.value = val;
-	  	  	
-  		comp = compare(current, p);
-	  	if (comp >= 0)
-	  	{
-	  		current.right = put(current.right, p, val, !horizontal, comp);
-	  		resize(current);
-	  		return current;
-	  	}
-	  	else
-	  	{
-	  		current.left = put(current.left, p, val, !horizontal, comp);
-	  		resize(current);
-	  		return current;
-	  	}	  
-	  }
-	  */
 	
 	// value associated with point p 
 	public T get(Point2D p)
@@ -145,34 +115,6 @@ public class KdtreeST<T> {
 		
 		return current.value;
 	}
-	
-	/* recursive soltion
-	private T get(Point2D p , Node n)
-	{
-		//base cases
-		if (n == null)
-			return null;
-		if (n.point.equals(p))
-			return n.value;
-		
-		//desides which path to go down
-		double cmp = compare(n,p);
-		if(cmp < 0)
-			return get(p,n.left);
-		else
-			return get(p,n.right);
-	}
-
-	// does the symbol table contain point p? 
-	public boolean contains(Point2D p)
-	{
-		if (p == null)
-			throw new java.lang.NullPointerException("the point must not be null");
-		
-		return get(p, root) != null;
-	}
-	*/
-	  
 
 	// all points in the symbol table
 	public Iterable<Point2D> points()
@@ -258,41 +200,35 @@ public class KdtreeST<T> {
 			return null;
 		
 		//create and pass to subsiquent calls so no recursive creation of variables
-		return nearest(p, root, new Point2D(0,0), Integer.MAX_VALUE, 0);
+		return nearest(p, root, root, root.left, root.right, Integer.MAX_VALUE,0).point;
 	}
 	
-	private Point2D nearest(Point2D p, Node current, Point2D close, double distance, double cmp)
+	private Node nearest(Point2D p, Node current, Node nearest,Node left, Node right, double distance, double cmp)
 	{
-		//base case
-		if(current == null)
-			return close;
+		if (current == null)
+			return nearest;
 		
-		//add closer point
-		if(current.point.distanceTo(p) < distance)
+		if(current.point.distanceSquaredTo(p) < distance)
 		{
-			close = current.point;
-			distance = current.point.distanceTo(p);
+			nearest = current;
+			distance = current.point.distanceSquaredTo(p);
 		}
-		
-		//prunning step neeeded 
-		//read assighment and work out--------------------------------------------------------------------
-		//if(current.point.distanceTo(p) < )
-		
+	
 		cmp = compare(current, p);
-		
 		//if given point is closer to right node go right first
 		if(cmp >= 0)
 		{
-			close = nearest(p,current.right, close,distance,cmp);
-			close = nearest(p,current.left, close,distance,cmp);
+			right = nearest(p, current.right, nearest,left, right, distance, cmp);
+			left = nearest(p, current.left, nearest,left, right, distance, cmp);
 		}
 		else // go left first
 		{
-			close = nearest(p,current.left, close,distance,cmp);
-			close = nearest(p,current.right, close,distance,cmp);
+			left = nearest(p, current.left, nearest, left, right, distance, cmp);
+			right = nearest(p, current.right, nearest, left, right, distance, cmp);
 		}
 		
-		return close;
+		return left.point.distanceSquaredTo(p) < right.point.distanceSquaredTo(p)? left: right;
+		
 	}
 	
 	private void resize(Node n)
@@ -369,7 +305,7 @@ public class KdtreeST<T> {
 		}
 		
 		StdOut.println("\nnearest() test");
-		StdOut.println(test.nearest(new Point2D(0,3)));
+		StdOut.println(test.nearest(new Point2D(0,1)));
 		
 	}
 }

@@ -125,10 +125,7 @@ public class PointST<T> {
 	{
 		// unit testing of the methods (not graded) 
 		PointST<Integer> test = new PointST<Integer>(); 
-		
-		test.put(new Point2D(0,1), 1);
-		test.put(new Point2D(0,3), 2);
-		test.put(new Point2D(3,4), 3);
+	
 		
 		for(Point2D p: test.points())
 		{
